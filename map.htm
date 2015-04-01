@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+    #map-canvas {
+      width: 500px;
+      height: 500px;
+      background-color:#CCC;
+    }
+    #legend{
+      background: white;
+      padding: 10px;
+    }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js"></script>
+    <script>
+      function init(){
+        var mapCanvas = document.getElementById('map-canvas');
+        var mapOptions = {
+          center: new google.maps.LatLng(37.7652778, -122.2405556),
+          zoom: 12,
+          mapTypeId: google.maps.MapTypeId.ROADMAP,
+          streetViewControl: false
+
+        }
+        var map = new google.maps.Map(mapCanvas,mapOptions);
+
+        //uncomment when uploading
+        map.data.loadGeoJson('/files/theme/citylimits.json');
+        
+
+        var styles = [
+            {
+              //color and visibility properties (hue, color, lightness, gamma)
+              stylers: [
+                {hue: "#66CCFF"},
+                {saturation: 20},
+                //{lightness}
+                //{gamma}
+                //{visibility: "on, off or simplified"}
+                //{weight: >= 0}
+              ]
+            },{
+              //map features (roads, parks, bodies of water, labels)
+              featureType: "road",
+              elementType: "geometry",
+              stylers: [
+                {lightness: 100},
+                {visibility: "simplified"}
+              ]
+            },{
+              featureType:"road",
+              elementType:"labels",
+              stylers:[
+                {visibility: "on"}
+              ]
+            },{
+              featureType: 'poi',
+              elementType: 'geometry',
+              stylers: [
+                { visibility: 'off' }
+              ]
+            }
+          ]; 
+        map.setOptions({styles: styles});
+        map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(document.getElementById('legend'));
+        var hbpicon = {
+          //for offline
+          //url: 'hbpicon.png',
+          //for online
+          url: '/files/theme/hbpicon.png',
+          size: new google.maps.Size(21,34),
+          origin: new google.maps.Point(0,0)
+        };
+        var markericon = {
+          //for offline
+          //url: 'marker.png',
+          //for online
+          url: '/files/theme/marker.png',
+          size: new google.maps.Size(15,15),
+          origin: new google.maps.Point(0,0)
+        };
+
+        var hbpLatLng = new google.maps.LatLng(37.781816, -122.233749);
+        var hbpMarker = new google.maps.Marker({
+          name: 'Clinic',
+          position: hbpLatLng,
+          map: map,
+          icon: hbpicon,
+          //for offline
+          //url: 'hbpicon.png',
+          //for online
+          //for legend
+          url: '/files/theme/hbpicon.png'
+
+        });
+
+        var addresses = [37.761600, -122.233749, 37.771816, -122.233749, 37.791816, -122.233749];
+        // var addressesLatLng = new google.maps.LatLng(addresses[0], addresses[1]);
+        // var addressMarker = new google.maps.Marker({
+        //   position: addressesLatLng,
+        //   map: map,
+        //   icon: markericon
+        // });
+        for (i = 0; i < addresses.length; i++) { 
+          var addressMarker = new google.maps.Marker({
+            position: new google.maps.LatLng(addresses[i], addresses[i+1]),
+            map: map,
+            icon: markericon
+          });
+        };
+
+        var legend = document.getElementById('legend');
+        //for (var style in styles){
+        var name = hbpMarker.name;
+        var icon = hbpMarker.url;
+        var div = document.createElement('div');
+        div.innerHTML = '<img src="' + icon + '"> ' + name;
+        legend.appendChild(div);
+        //}
+
+        var infoClinic = '<div id="content">' +
+          '<div id="clinicContent">' +
+          '</div>'+
+          '<h1 id="headingContent">Wednesday Clinic</h1>'+
+          '<div id="bodyContent">'+
+          '<p>Patients may drop by to get no cost </br>vaccination, '+
+          'screenings, or education </br> for the hepatitis B viris.'+
+          '</p>'+
+          '<p>Address: 2501 International Blvd, </br>Oakland, CA</br>'+
+          'Times: Wednesdays 1:30 PM - 4:00 PM</br></br>'+
+          'Click the link below to visit Hep B Project</br>'+
+          '<a href="http://www.hepbproject.org/">Hep B Project Website</a>'+
+          '</p>'+
+          '</div>'+
+          '</div>';
+        var infoWindow = new google.maps.InfoWindow({
+          content: infoClinic,
+          maxWidth: 300,
+        });
+        google.maps.event.addListener(hbpMarker, 'click', function(){
+          infoWindow.open(map,hbpMarker);
+        });
+
+      }
+      google.maps.event.addDomListener(window, 'load', init);
+
+    </script>
+  </head>
+  <body>
+  <div id="map-canvas"></div>
+  <div id="legend">Legend</div>
+  
+  </body>
+</html>
